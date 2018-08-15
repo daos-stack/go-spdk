@@ -41,7 +41,7 @@ package nvme
 import "C"
 
 import (
-	"errors"
+	"fmt"
 	"unsafe"
 )
 
@@ -100,7 +100,7 @@ func rc2err(label string, rc C.int) error {
 			rc = -rc
 		}
 		// e := errors.Error(rc)
-		return errors.Errorf("%s: %s", label, rc) // e
+		return fmt.Errorf("%s: %s", label, rc) // e
 	}
 	return nil
 }
@@ -147,10 +147,10 @@ func Discover() ([]Controller, []Namespace, error) {
 			return ctrlrs, nss, nil
 		}
 
-		return nil, nil, errors.New(
+		return nil, nil, fmt.Errorf(
 			"NVMeDiscover(): C.nvme_discover failed, verify SPDK install")
 	}
 
-	return nil, nil, errors.New(
+	return nil, nil, fmt.Errorf(
 		"NVMeDiscover(): C.nvme_discover unexpectedly returned NULL")
 }
