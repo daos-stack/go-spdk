@@ -40,9 +40,9 @@ func checkFailure(shouldSucceed bool, err error) (rErr error) {
 }
 
 func TestDiscover(t *testing.T) {
-	var se env
-	se.shmID = 1
-	var n nvme
+	var se Env
+	se.ShmID = 1
+	var n Nvme
 
 	tests := []struct {
 		lib           string
