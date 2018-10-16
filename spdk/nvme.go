@@ -131,8 +131,8 @@ type NVMe interface {
 	Cleanup()
 }
 
-// nvme is an NVMe implementation.
-type nvme struct{}
+// Nvme is an NVMe implementation.
+type Nvme struct{}
 
 // Discover calls C.nvme_discover which returns
 // pointers to single linked list of ctrlr_t and ns_t structs.
@@ -140,7 +140,7 @@ type nvme struct{}
 //
 // \return ([]Controllers, []Namespace, nil) on success,
 //         (nil, nil, error) otherwise
-func (n *nvme) Discover() ([]Controller, []Namespace, error) {
+func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
 	failLocation := "NVMe Discover(): C.nvme_discover"
 
 	if retPtr := C.nvme_discover(); retPtr != nil {
@@ -158,7 +158,7 @@ func (n *nvme) Discover() ([]Controller, []Namespace, error) {
 // \slot Firmware slot/register to upload to on controller
 // \return ([]Controllers, []Namespace, nil) on success,
 //         (nil, nil, error) otherwise
-func (n *nvme) Update(ctrlrID int32, path string, slot int32) (
+func (n *Nvme) Update(ctrlrID int32, path string, slot int32) (
 	[]Controller, []Namespace, error) {
 
 	csPath := C.CString(path)
@@ -176,6 +176,6 @@ func (n *nvme) Update(ctrlrID int32, path string, slot int32) (
 }
 
 // Cleanup unlinks and detaches any controllers or namespaces.
-func (n *nvme) Cleanup() {
+func (n *Nvme) Cleanup() {
 	C.nvme_cleanup()
 }
