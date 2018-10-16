@@ -137,9 +137,6 @@ type Nvme struct{}
 // Discover calls C.nvme_discover which returns
 // pointers to single linked list of ctrlr_t and ns_t structs.
 // These are converted to slices of Controller and Namespace structs.
-//
-// \return ([]Controllers, []Namespace, nil) on success,
-//         (nil, nil, error) otherwise
 func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
 	failLocation := "NVMe Discover(): C.nvme_discover"
 
@@ -152,12 +149,7 @@ func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
 }
 
 // Update calls C.nvme_fwupdate to update controller firmware image.
-//
-// \ctrlrID Controller ID to perform update on
-// \path Filesystem path to retrieve firmware image from
-// \slot Firmware slot/register to upload to on controller
-// \return ([]Controllers, []Namespace, nil) on success,
-//         (nil, nil, error) otherwise
+// Retrieves image from path and updates given firmware slot/register.
 func (n *Nvme) Update(ctrlrID int32, path string, slot int32) (
 	[]Controller, []Namespace, error) {
 

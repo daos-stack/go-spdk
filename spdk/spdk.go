@@ -57,8 +57,6 @@ type Env struct {
 // TODO: If err is already set then it is wrapped,
 // otherwise it is ignored. e.g.
 // func Rc2err(label string, rc C.int, err error) error {
-//
-// \return nil on success, err otherwise
 func Rc2err(label string, rc C.int) error {
 	if rc != 0 {
 		if rc < 0 {
@@ -82,8 +80,6 @@ func (se *Env) SetSPDKEnvOpts(opts *C.struct_spdk_env_opts) {
 // SPDK relies on an abstraction around the local environment
 // named env that handles memory allocation and PCI device operations.
 // This library must be initialized first.
-//
-// \return nil on success, err otherwise
 func (se *Env) InitSPDKEnv() (err error) {
 	opts := &C.struct_spdk_env_opts{}
 
