@@ -21,7 +21,7 @@
 // portions thereof marked with this legend must also reproduce the markings.
 //
 
-// Package spdk provides Go bindings for SPDK: SPDK common utilities
+// Package spdk provides Go bindings for SPDK
 package spdk
 
 // CGO_CFLAGS & CGO_LDFLAGS env vars can be used
@@ -39,6 +39,18 @@ import "C"
 import (
 	"fmt"
 )
+
+// Env is the interface that provides main SPDK functionality.
+type Env interface {
+	SetSPDKEnvOpts(opts *C.struct_spdk_env_opts) error
+	InitSPDKEnv() error
+}
+
+// env is a simple SPDK Env.
+type env struct {
+	// value of 0 (unset) is ignored
+	shmID int
+}
 
 // Rc2err returns an failure if rc != 0.
 //
@@ -58,6 +70,13 @@ func Rc2err(label string, rc C.int) error {
 	return nil
 }
 
+// SetSPDKEnvOpts sets options for initialisation of the SPDK environment.
+func (se *env) SetSPDKEnvOpts(opts *C.struct_spdk_env_opts) {
+	if se.shmID > 0 {
+		opts.shm_id = C.int(se.shmID)
+	}
+}
+
 // InitSPDKEnv initializes the SPDK environment.
 //
 // SPDK relies on an abstraction around the local environment
@@ -65,16 +84,16 @@ func Rc2err(label string, rc C.int) error {
 // This library must be initialized first.
 //
 // \return nil on success, err otherwise
-func InitSPDKEnv() error {
+func (se *env) InitSPDKEnv() (err error) {
 	opts := &C.struct_spdk_env_opts{}
 
 	C.spdk_env_opts_init(opts)
+	se.SetSPDKEnvOpts(opts)
 
-	opts.shm_id = 1
 	rc := C.spdk_env_init(opts)
-	if err := Rc2err("spdk_env_opts_init", rc); err != nil {
-		return err
+	if err = Rc2err("spdk_env_opts_init", rc); err != nil {
+		return
 	}
 
-	return nil
+	return
 }

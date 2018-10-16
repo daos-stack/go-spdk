@@ -21,8 +21,7 @@
 // portions thereof marked with this legend must also reproduce the markings.
 //
 
-// Package nvme provides Go bindings for SPDK: NVMe tasks
-package nvme
+package spdk
 
 // CGO_CFLAGS & CGO_LDFLAGS env vars can be used
 // to specify additional dirs.
@@ -122,13 +121,26 @@ func processReturn(retPtr *C.struct_ret_t, failLocation string) (
 		C.GoString(&retPtr.err[0]))
 }
 
+// NVMe is the interface that provides SPDK NVMe functionality.
+type NVMe interface {
+	// Discover NVMe controllers and namespaces
+	Discover() ([]Controller, []Namespace, error)
+	// Update NVMe controller firmware
+	Update(ctrlrID int32, path string, slot int32)
+	// Cleanup NVMe object references
+	Cleanup()
+}
+
+// nvme is an NVMe implementation.
+type nvme struct{}
+
 // Discover calls C.nvme_discover which returns
 // pointers to single linked list of ctrlr_t and ns_t structs.
 // These are converted to slices of Controller and Namespace structs.
 //
 // \return ([]Controllers, []Namespace, nil) on success,
 //         (nil, nil, error) otherwise
-func Discover() ([]Controller, []Namespace, error) {
+func (n *nvme) Discover() ([]Controller, []Namespace, error) {
 	failLocation := "NVMe Discover(): C.nvme_discover"
 
 	if retPtr := C.nvme_discover(); retPtr != nil {
@@ -146,7 +158,7 @@ func Discover() ([]Controller, []Namespace, error) {
 // \slot Firmware slot/register to upload to on controller
 // \return ([]Controllers, []Namespace, nil) on success,
 //         (nil, nil, error) otherwise
-func Update(ctrlrID int32, path string, slot int32) (
+func (n *nvme) Update(ctrlrID int32, path string, slot int32) (
 	[]Controller, []Namespace, error) {
 
 	csPath := C.CString(path)
@@ -164,6 +176,6 @@ func Update(ctrlrID int32, path string, slot int32) (
 }
 
 // Cleanup unlinks and detaches any controllers or namespaces.
-func Cleanup() {
+func (n *nvme) Cleanup() {
 	C.nvme_cleanup()
 }

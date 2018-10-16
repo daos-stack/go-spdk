@@ -1,5 +1,4 @@
-[spdk![GoDoc](https://godoc.org/github.com/tanabarr/go-spdk/spdk?status.svg)](https://godoc.org/github.com/tanabarr/go-spdk/spdk)
-[nvme![GoDoc](https://godoc.org/github.com/tanabarr/go-spdk/nvme?status.svg)](https://godoc.org/github.com/tanabarr/go-spdk/nvme)
+[![GoDoc](https://godoc.org/github.com/daos-stack/go-spdk/spdk?status.svg)](https://godoc.org/github.com/daos-stack/go-spdk/spdk)
 
 # Go language bindings for the SPDK API
 

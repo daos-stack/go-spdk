@@ -20,13 +20,12 @@
 // Any reproduction of computer software, computer software documentation, or
 // portions thereof marked with this legend must also reproduce the markings.
 //
-package nvme
+
+package spdk
 
 import (
 	"fmt"
 	"testing"
-
-	"go-spdk/spdk"
 )
 
 func checkFailure(shouldSucceed bool, err error) (rErr error) {
@@ -41,6 +40,10 @@ func checkFailure(shouldSucceed bool, err error) (rErr error) {
 }
 
 func TestDiscover(t *testing.T) {
+	var se env
+	se.shmID = 1
+	var n nvme
+
 	tests := []struct {
 		lib           string
 		shouldSucceed bool
@@ -51,20 +54,20 @@ func TestDiscover(t *testing.T) {
 	}
 
 	for i, tt := range tests {
-		if err := spdk.InitSPDKEnv(); err != nil {
+		if err := se.InitSPDKEnv(); err != nil {
 			t.Fatal(err.Error())
 		}
 
-		_, _, err := Discover()
+		_, _, err := n.Discover()
 		if checkFailure(tt.shouldSucceed, err) != nil {
 			t.Errorf("case %d: %v", i, err)
 		}
 
-		_, _, err = Update(0, "", 0)
+		_, _, err = n.Update(0, "", 0)
 		if checkFailure(tt.shouldSucceed, err) != nil {
 			t.Errorf("case %d: %v", i, err)
 		}
 
-		Cleanup()
+		n.Cleanup()
 	}
 }

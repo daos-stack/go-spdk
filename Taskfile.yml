@@ -5,33 +5,26 @@ tasks:
     cmds:
       - task: build-nvme-libs
       - task: unit-tests
-      - task: build-nvme
       - task: build-spdk
 
   build-nvme-libs:
-    dir: nvme
+    dir: spdk
     cmds:
       - rm -f *.o *.so
       - gcc -Werror -g -Wshadow -Wall -Wno-missing-braces -c -fpic -Iinclude src/*.c -lspdk
       - gcc -shared -o libnvme_control.so *.o
 
   unit-tests:
-    dir: nvme
+    dir: spdk
     cmds:
       - go test
-
-  build-nvme:
-    dir: nvme
-    deps: [lint]
-    cmds:
-      - go build -v -i nvme.go
 
   build-spdk:
     dir: spdk
     deps: [lint]
     cmds:
-      - go build -v -i spdk.go
+      - go build -v -i
 
   lint:
     cmds:
-      - gofmt -l -s -w . && go tool vet -all . && golint
+      - gofmt -l -s -w . && go tool vet -all . && golint && goimports .
