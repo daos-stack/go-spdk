@@ -42,7 +42,6 @@ import (
 
 // ENV is the interface that provides SPDK environment management.
 type ENV interface {
-	SetSPDKEnvOpts(opts *C.struct_spdk_env_opts) error
 	InitSPDKEnv() error
 }
 
@@ -68,8 +67,8 @@ func Rc2err(label string, rc C.int) error {
 	return nil
 }
 
-// SetSPDKEnvOpts sets options for initialisation of the SPDK environment.
-func (se *Env) SetSPDKEnvOpts(opts *C.struct_spdk_env_opts) {
+// setSPDKEnvOpts sets options for initialisation of the SPDK environment.
+func (se *Env) setSPDKEnvOpts(opts *C.struct_spdk_env_opts) {
 	if se.ShmID > 0 {
 		opts.shm_id = C.int(se.ShmID)
 	}
@@ -84,7 +83,7 @@ func (se *Env) InitSPDKEnv() (err error) {
 	opts := &C.struct_spdk_env_opts{}
 
 	C.spdk_env_opts_init(opts)
-	se.SetSPDKEnvOpts(opts)
+	se.setSPDKEnvOpts(opts)
 
 	rc := C.spdk_env_init(opts)
 	if err = Rc2err("spdk_env_opts_init", rc); err != nil {
