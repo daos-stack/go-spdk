@@ -43,6 +43,19 @@ import (
 	"unsafe"
 )
 
+// NVME is the interface that provides SPDK NVMe functionality.
+type NVME interface {
+	// Discover NVMe controllers and namespaces
+	Discover() ([]Controller, []Namespace, error)
+	// Update NVMe controller firmware
+	Update(ctrlrID int32, path string, slot int32)
+	// Cleanup NVMe object references
+	Cleanup()
+}
+
+// Nvme is an NVME interface implementation.
+type Nvme struct{}
+
 // Controller struct mirrors C.struct_ctrlr_t and
 // describes a NVMe controller.
 //
@@ -65,6 +78,44 @@ type Namespace struct {
 	ID      int32
 	Size    int32
 	CtrlrID int32
+}
+
+// Discover calls C.nvme_discover which returns
+// pointers to single linked list of ctrlr_t and ns_t structs.
+// These are converted to slices of Controller and Namespace structs.
+func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
+	failLocation := "NVMe Discover(): C.nvme_discover"
+
+	if retPtr := C.nvme_discover(); retPtr != nil {
+		return processReturn(retPtr, failLocation)
+	}
+
+	return nil, nil, fmt.Errorf(
+		"%s unexpectedly returned NULL", failLocation)
+}
+
+// Update calls C.nvme_fwupdate to update controller firmware image.
+// Retrieves image from path and updates given firmware slot/register.
+func (n *Nvme) Update(ctrlrID int32, path string, slot int32) (
+	[]Controller, []Namespace, error) {
+
+	csPath := C.CString(path)
+	defer C.free(unsafe.Pointer(csPath))
+
+	failLocation := "NVMe Update(): C.nvme_fwupdate"
+
+	retPtr := C.nvme_fwupdate(C.uint(ctrlrID), csPath, C.uint(slot))
+	if retPtr != nil {
+		return processReturn(retPtr, failLocation)
+	}
+
+	return nil, nil, fmt.Errorf(
+		"%s unexpectedly returned NULL", failLocation)
+}
+
+// Cleanup unlinks and detaches any controllers or namespaces.
+func (n *Nvme) Cleanup() {
+	C.nvme_cleanup()
 }
 
 // c2GoController is a private translation function
@@ -119,55 +170,4 @@ func processReturn(retPtr *C.struct_ret_t, failLocation string) (
 		failLocation,
 		retPtr.rc,
 		C.GoString(&retPtr.err[0]))
-}
-
-// NVMe is the interface that provides SPDK NVMe functionality.
-type NVMe interface {
-	// Discover NVMe controllers and namespaces
-	Discover() ([]Controller, []Namespace, error)
-	// Update NVMe controller firmware
-	Update(ctrlrID int32, path string, slot int32)
-	// Cleanup NVMe object references
-	Cleanup()
-}
-
-// Nvme is an NVMe implementation.
-type Nvme struct{}
-
-// Discover calls C.nvme_discover which returns
-// pointers to single linked list of ctrlr_t and ns_t structs.
-// These are converted to slices of Controller and Namespace structs.
-func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
-	failLocation := "NVMe Discover(): C.nvme_discover"
-
-	if retPtr := C.nvme_discover(); retPtr != nil {
-		return processReturn(retPtr, failLocation)
-	}
-
-	return nil, nil, fmt.Errorf(
-		"%s unexpectedly returned NULL", failLocation)
-}
-
-// Update calls C.nvme_fwupdate to update controller firmware image.
-// Retrieves image from path and updates given firmware slot/register.
-func (n *Nvme) Update(ctrlrID int32, path string, slot int32) (
-	[]Controller, []Namespace, error) {
-
-	csPath := C.CString(path)
-	defer C.free(unsafe.Pointer(csPath))
-
-	failLocation := "NVMe Update(): C.nvme_fwupdate"
-
-	retPtr := C.nvme_fwupdate(C.uint(ctrlrID), csPath, C.uint(slot))
-	if retPtr != nil {
-		return processReturn(retPtr, failLocation)
-	}
-
-	return nil, nil, fmt.Errorf(
-		"%s unexpectedly returned NULL", failLocation)
-}
-
-// Cleanup unlinks and detaches any controllers or namespaces.
-func (n *Nvme) Cleanup() {
-	C.nvme_cleanup()
 }
