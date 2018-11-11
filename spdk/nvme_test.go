@@ -41,20 +41,24 @@ func checkFailure(shouldSucceed bool, err error) (rErr error) {
 
 func TestDiscover(t *testing.T) {
 	var se Env
-	se.ShmID = 1
 	var n Nvme
 
 	tests := []struct {
-		lib           string
+		shmID		  int
 		shouldSucceed bool
 	}{
 		{
+			shmID: 0,
+			shouldSucceed: true,
+		},
+		{
+			shmID: 1,
 			shouldSucceed: true,
 		},
 	}
 
 	for i, tt := range tests {
-		if err := se.InitSPDKEnv(); err != nil {
+		if err := se.InitSPDKEnv(tt.shmID); err != nil {
 			t.Fatal(err.Error())
 		}
 

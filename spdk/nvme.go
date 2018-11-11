@@ -48,7 +48,8 @@ type NVME interface {
 	// Discover NVMe controllers and namespaces
 	Discover() ([]Controller, []Namespace, error)
 	// Update NVMe controller firmware
-	Update(ctrlrID int32, path string, slot int32)
+	Update(ctrlrID int32, path string, slot int32) (
+		[]Controller, []Namespace, error)
 	// Cleanup NVMe object references
 	Cleanup()
 }
