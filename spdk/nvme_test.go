@@ -44,15 +44,15 @@ func TestDiscover(t *testing.T) {
 	var n Nvme
 
 	tests := []struct {
-		shmID		  int
+		shmID         int
 		shouldSucceed bool
 	}{
 		{
-			shmID: 0,
+			shmID:         0,
 			shouldSucceed: true,
 		},
 		{
-			shmID: 1,
+			shmID:         1,
 			shouldSucceed: true,
 		},
 	}

@@ -46,7 +46,7 @@ type ENV interface {
 }
 
 // Env is a simple ENV implementation.
-type Env struct {}
+type Env struct{}
 
 // Rc2err returns an failure if rc != 0.
 //
