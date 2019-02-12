@@ -76,9 +76,9 @@ type Controller struct {
 // TODO: populate implicitly using inner member:
 // +inner C.struct_ns_t
 type Namespace struct {
-	ID      int32
-	Size    int32
-	CtrlrID int32
+	ID           int32
+	Size         int32
+	CtrlrPciAddr string
 }
 
 // Discover calls C.nvme_discover which returns
@@ -133,9 +133,9 @@ func c2GoController(ctrlr *C.struct_ctrlr_t) Controller {
 // c2GoNamespace is a private translation function
 func c2GoNamespace(ns *C.struct_ns_t) Namespace {
 	return Namespace{
-		ID:      int32(ns.id),
-		Size:    int32(ns.size),
-		CtrlrID: int32(ns.ctrlr_id),
+		ID:           int32(ns.id),
+		Size:         int32(ns.size),
+		CtrlrPciAddr: C.GoString(&ns.ctrlr_tr_addr[0]),
 	}
 }
 

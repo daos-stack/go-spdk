@@ -171,7 +171,13 @@ collect(struct ret_t *ret)
 		ns_tmp->id = spdk_nvme_ns_get_id(ns_entry->ns);
 		// capacity in GBytes
 		ns_tmp->size = spdk_nvme_ns_get_size(ns_entry->ns) / 1000000000;
-		ns_tmp->ctrlr_id = cdata->cntlid;
+		written = snprintf(
+			ns_tmp->ctrlr_tr_addr,
+			sizeof(ns_tmp->ctrlr_tr_addr),
+			"%s",
+			cdata->tr_addr
+		);
+		check_size(written, sizeof(ns_tmp->ctrlr_tr_addr), "transport address truncated", ret);
 		ns_tmp->next = ret->nss;
 		ret->nss = ns_tmp;
 
