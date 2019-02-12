@@ -135,7 +135,7 @@ func c2GoNamespace(ns *C.struct_ns_t) Namespace {
 	return Namespace{
 		ID:           int32(ns.id),
 		Size:         int32(ns.size),
-		CtrlrPciAddr: C.GoString(&ns.ctrlr_tr_addr[0]),
+		CtrlrPciAddr: C.GoString(&ns.ctrlr_pci_addr[0]),
 	}
 }
 

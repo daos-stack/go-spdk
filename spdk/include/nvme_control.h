@@ -35,7 +35,7 @@ struct ctrlr_t {
 struct ns_t {
 	int		id;
 	int		size;
-	char		ctrlr_tr_addr[SPDK_NVMF_TRADDR_MAX_LEN + 1];
+	char		ctrlr_pci_addr[1024];
 	struct ns_t	*next;
 };
 struct ret_t {

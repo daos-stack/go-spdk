@@ -151,6 +151,7 @@ collect(struct ret_t *ret)
 	struct ns_entry				*ns_entry;
 	struct ctrlr_entry			*ctrlr_entry;
 	const struct spdk_nvme_ctrlr_data	*cdata;
+	struct spdk_pci_device			*pci_dev;
 	int					written;
 
 	ns_entry = g_namespaces;
@@ -171,13 +172,19 @@ collect(struct ret_t *ret)
 		ns_tmp->id = spdk_nvme_ns_get_id(ns_entry->ns);
 		// capacity in GBytes
 		ns_tmp->size = spdk_nvme_ns_get_size(ns_entry->ns) / 1000000000;
+		pci_dev = spdk_nvme_ctrlr_get_pci_device(ns_entry->ctrlr);
+		if (!pci_dev) {
+			perror("get_pci_device");
+			exit(1);
+		}
 		written = snprintf(
-			ns_tmp->ctrlr_tr_addr,
-			sizeof(ns_tmp->ctrlr_tr_addr),
-			"%s",
-			cdata->trid->traddr
+			ns_tmp->ctrlr_pci_addr,
+			sizeof(ns_tmp->ctrlr_pci_addr),
+			"%04x:%02x:%02x.%x",
+			pci_dev->addr.domain, pci_dev->addr.bus,
+			pci_dev->addr.dev, pci_dev->addr.func
 		);
-		check_size(written, sizeof(ns_tmp->ctrlr_tr_addr), "transport address truncated", ret);
+		check_size(written, sizeof(ns_tmp->ctrlr_pci_addr), "pci address truncated", ret);
 		ns_tmp->next = ret->nss;
 		ret->nss = ns_tmp;
 
