@@ -175,7 +175,7 @@ collect(struct ret_t *ret)
 			ns_tmp->ctrlr_tr_addr,
 			sizeof(ns_tmp->ctrlr_tr_addr),
 			"%s",
-			cdata->tr_addr
+			cdata->trid->traddr
 		);
 		check_size(written, sizeof(ns_tmp->ctrlr_tr_addr), "transport address truncated", ret);
 		ns_tmp->next = ret->nss;
