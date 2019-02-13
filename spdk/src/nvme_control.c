@@ -173,7 +173,8 @@ collect(struct ret_t *ret)
 
 		ns_tmp->id = spdk_nvme_ns_get_id(ns_entry->ns);
 		// capacity in GBytes
-		ns_tmp->size = spdk_nvme_ns_get_size(ns_entry->ns) / 1000000000;
+		ns_tmp->size = spdk_nvme_ns_get_size(ns_entry->ns) / \
+			       NVMECONTROL_GBYTE_BYTES;
 
 		pci_dev = spdk_nvme_ctrlr_get_pci_device(ns_entry->ctrlr);
 		if (!pci_dev) {
