@@ -97,15 +97,18 @@ func (n *Nvme) Discover() ([]Controller, []Namespace, error) {
 
 // Update calls C.nvme_fwupdate to update controller firmware image.
 // Retrieves image from path and updates given firmware slot/register.
-func (n *Nvme) Update(ctrlrID int32, path string, slot int32) (
+func (n *Nvme) Update(ctrlrPciAddr string, path string, slot int32) (
 	[]Controller, []Namespace, error) {
 
 	csPath := C.CString(path)
 	defer C.free(unsafe.Pointer(csPath))
 
+	csPci := C.CString(ctrlrPciAddr)
+	defer C.free(unsafe.Pointer(csPci))
+
 	failLocation := "NVMe Update(): C.nvme_fwupdate"
 
-	retPtr := C.nvme_fwupdate(C.uint(ctrlrID), csPath, C.uint(slot))
+	retPtr := C.nvme_fwupdate(csPci, csPath, C.uint(slot))
 	if retPtr != nil {
 		return processReturn(retPtr, failLocation)
 	}
