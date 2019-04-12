@@ -27,19 +27,26 @@ Clone the repo:
     git clone git@github.com:daos-stack/go-spdk.git
     export GOSPDK_REPO=${HOME}/go-spdk
 
-Setup and install go-task:
-
-    cd ${GOSPDK_REPO}
-    go get -u -v github.com/go-task/task/cmd/task
-    export PATH=${PATH}:${GOSPDK_REPO}/bin/
-
 Setup environment:
 
-    export GOPATH=${GOSPDK_REPO}
+    export GOPATH=${HOME}/go
     export SPDK_REPO=${HOME}/spdk
     export LD_LIBRARY_PATH=${HOME}/${SPDK_REPO}/build/lib:${HOME}/go-spdk/spdk:${LD_LIBRARY_PATH}
     export CGO_CPPFLAGS="-I${SPDK_REPO}/include"
     export CGO_LDFLAGS=-"-L${SPDK_REPO}/build/lib -lspdk"
+
+Install go-task:
+
+    go get -u -v github.com/go-task/task/cmd/task
+    export PATH=${PATH}:${GOPATH}/bin/
+
+Install [golint] (https://github.com/golang/lint):
+
+    go get -u -v golang.org/x/lint/golint
+
+Install [goimport] (https://godoc.org/golang.org/x/tools/cmd/goimports)
+
+    go get -u -v golang.org/x/tools/cmd/goimports
 
 ### Build with Taskfile
 
