@@ -17,7 +17,7 @@ To clone the 18.07 SPDK branch:
 
 This is a [Go](https://golang.orghttps://golang.org/doc/install)
 project, so the Go development tools are naturally required. We
-recommend the most current Go release available. As of July 2018, the project has been built and tested with Go 1.9.
+recommend the most current Go release available. As of July 2018, the project has been built and tested with Go 1.11.5
 
 The following steps assume SPDK shared lib is installed in `${SPDK_REPO}/build/lib/libspdk.so`.
 In order to use some of the SPDK API, please also follow [Hugepages and Device Binding](https://github.com/spdk/spdk#hugepages-and-device-binding).
@@ -31,20 +31,20 @@ Setup environment:
 
     export GOPATH=${HOME}/go
     export SPDK_REPO=${HOME}/spdk
-    export LD_LIBRARY_PATH=${HOME}/${SPDK_REPO}/build/lib:${HOME}/go-spdk/spdk:${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${HOME}/${SPDK_REPO}/build/lib:${GOSPDK_REPO}/spdk:${LD_LIBRARY_PATH}
     export CGO_CPPFLAGS="-I${SPDK_REPO}/include"
-    export CGO_LDFLAGS=-"-L${SPDK_REPO}/build/lib -lspdk"
+    export CGO_LDFLAGS="-L${SPDK_REPO}/build/lib -lspdk"
 
 Install go-task:
 
     go get -u -v github.com/go-task/task/cmd/task
     export PATH=${PATH}:${GOPATH}/bin/
 
-Install [golint] (https://github.com/golang/lint):
+Install [golint](https://github.com/golang/lint):
 
     go get -u -v golang.org/x/lint/golint
 
-Install [goimport] (https://godoc.org/golang.org/x/tools/cmd/goimports)
+Install [goimport](https://godoc.org/golang.org/x/tools/cmd/goimports)
 
     go get -u -v golang.org/x/tools/cmd/goimports
 
