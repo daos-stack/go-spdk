@@ -40,40 +40,40 @@ func checkFailure(shouldSucceed bool, err error) (rErr error) {
 }
 
 func TestDiscover(t *testing.T) {
-	var se Env
+	var spdk Env
 	var n Nvme
 
 	tests := []struct {
 		shmID         int
 		shouldSucceed bool
 	}{
-		{
-			shmID:         0,
-			shouldSucceed: true,
-		},
-		//		{
-		//			shmID:         1,
-		//			shouldSucceed: true,
-		//		},
+		{shmID: 0, shouldSucceed: true},
+		{shmID: 1, shouldSucceed: true},
 	}
 
-	for i, tt := range tests {
-		if err := se.InitSPDKEnv(tt.shmID); err != nil {
+	for i, test := range tests {
+		if err := spdk.InitSPDKEnv(test.shmID); err != nil {
 			t.Fatal(err.Error())
 		}
 
 		cs, nss, err := n.Discover()
-		if checkFailure(tt.shouldSucceed, err) != nil {
+		if checkFailure(test.shouldSucceed, err) != nil {
 			t.Errorf("case %d: %v", i, err)
 		}
 		fmt.Printf("controllers: %#v\n", cs)
 		fmt.Printf("namespaces: %#v\n", nss)
 
-		//		_, _, err = n.Update(0, "", 0)
-		//		if checkFailure(tt.shouldSucceed, err) != nil {
-		//			t.Errorf("case %d: %v", i, err)
-		//		}
-
 		n.Cleanup()
+	}
+}
+
+func TestFormat(t *testing.T) {
+
+}
+
+func TestUpdate(t *testing.T) {
+	_, _, err = n.Update(0, "", 0)
+	if checkFailure(tt.shouldSucceed, err) != nil {
+		t.Errorf("case %d: %v", i, err)
 	}
 }
