@@ -28,6 +28,9 @@
 # include "nvme_control.h"
 # include "nvme_control_common.h"
 
+struct ctrlr_entry	*g_controllers;
+struct ns_entry		*g_namespaces;
+
 void
 register_ns(struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns)
 {

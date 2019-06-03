@@ -37,8 +37,8 @@ struct ns_entry {
 	struct spdk_nvme_qpair	*qpair;
 };
 
-struct ctrlr_entry	*g_controllers;
-struct ns_entry		*g_namespaces;
+extern struct ctrlr_entry	*g_controllers;
+extern struct ns_entry		*g_namespaces;
 
 /**
  * Register the namespace by obtaining the NVMe controller data,
@@ -49,36 +49,52 @@ struct ns_entry		*g_namespaces;
  * \param pointer to spdk_nvme_ns struct
  *
  */
-void 
+void
 register_ns(struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns);
 
-bool 
+/**
+ * Probe call back function.
+ *
+ * \param cb_ctx
+ * \param trid pointer to spdk_nvme_transport_id struct
+ * \param opts pointer to spdk_nvme_ctrlr_opts struct
+ *
+ * \returns a bool: True
+ *
+ */
+bool
 probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 	 struct spdk_nvme_ctrlr_opts *opts);
 
-void 
+/**
+ * Attach call back function.
+ *
+ * \returns a bool: True
+ *
+ */
+void
 attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 	  struct spdk_nvme_ctrlr *ctrlr,
 	  const struct spdk_nvme_ctrlr_opts *opts);
 
-struct 
-ret_t *init_ret(void);
+struct ret_t *
+init_ret(void);
 
-int 
+int
 check_size(int written, int max, char *msg, struct ret_t *ret);
 
-int 
+int
 set_pci_addr(
 	struct spdk_nvme_ctrlr *ctrlr, char *ctrlr_pci_addr, size_t size,
 	struct ret_t *ret);
 
-void 
+int
+get_controller(char *addr, struct ctrlr_entry *ctrlr_entry, struct ret_t *ret);
+
+void
 collect(struct ret_t *ret);
 
-void 
+void
 cleanup(void);
-
-int 
-get_controller(char *addr, struct ctrlr_entry *ctrlr_entry, struct ret_t *ret);
 
 #endif
