@@ -131,11 +131,11 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 	rc = spdk_nvme_ctrlr_update_firmware(ctrlr_entry->ctrlr, fw_image, size, slot, commit_action, &status);
 	if (rc == -ENXIO && status.sct == SPDK_NVME_SCT_COMMAND_SPECIFIC &&
 		status.sc == SPDK_NVME_SC_FIRMWARE_REQ_CONVENTIONAL_RESET) {
-		sprintf(ret->err, "conventional reset is needed to enable firmware !");
+		snprintf(ret->err, 24, "reset is needed!");
 	} else if (rc) {
-		sprintf(ret->err, "spdk_nvme_ctrlr_update_firmware failed");
+		snprintf(ret->err, 24, "ctrlr_update_fw failed");
 	} else {
-		sprintf(ret->err, "spdk_nvme_ctrlr_update_firmware success");
+		snprintf(ret->err, 24, "ctrlr_update_fw success");
 	}
 	spdk_dma_free(fw_image);
 

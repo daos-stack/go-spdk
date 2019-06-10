@@ -31,8 +31,8 @@ Setup environment:
 
     export GOPATH=${HOME}/go
     export SPDK_REPO=${HOME}/spdk
-    export LD_LIBRARY_PATH=${HOME}/${SPDK_REPO}/build/lib:${GOSPDK_REPO}/spdk:${LD_LIBRARY_PATH}
-    export CGO_CPPFLAGS="-I${SPDK_REPO}/include"
+    export LD_LIBRARY_PATH=${SPDK_REPO}/build/lib:${SPDK_REPO}/include:${GOSPDK_REPO}/spdk:${LD_LIBRARY_PATH}
+    export CGO_CFLAGS="-I${SPDK_REPO}/include"
     export CGO_LDFLAGS="-L${SPDK_REPO}/build/lib -lspdk"
 
 Install go-task:
@@ -57,7 +57,7 @@ Run task:
 ### How to build manually (without Taskfile)
 
 Build NVMe libs:
-    
+
     cd ${GOSPDK_REPO}/spdk
     gcc ${CGO_LDFLAGS} ${CGO_CFLAGS} -Werror -g -Wshadow -Wall -Wno-missing-braces -c -fpic -Iinclude src/*.c -lspdk
     gcc ${CGO_LDFLAGS} ${CGO_CFLAGS} -shared -o libnvme_control.so *.o

@@ -64,36 +64,66 @@ register_ns(struct spdk_nvme_ctrlr *ctrlr, struct spdk_nvme_ns *ns);
  */
 bool
 probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
-	 struct spdk_nvme_ctrlr_opts *opts);
+	struct spdk_nvme_ctrlr_opts *opts);
 
 /**
- * Attach call back function.
+ * Attach call back function to report a device that has been
+ * attached to the userspace NVMe driver.
  *
- * \returns a bool: True
+ * \param cb_ctx Opaque value passed to spdk_nvme_attach_cb()
+ * \param trid NVMe transport identifier
+ * \param ctrlr opaque handle to NVMe controller
+ * \param opts NVMe controller init options that were actually used.
  *
  */
 void
 attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
-	  struct spdk_nvme_ctrlr *ctrlr,
-	  const struct spdk_nvme_ctrlr_opts *opts);
+	struct spdk_nvme_ctrlr *ctrlr,
+	const struct spdk_nvme_ctrlr_opts *opts);
 
+/**
+ * Initialize the ret_t struct by allocating memory and setting attributes to NULL
+ *
+ * \return struct ret_t
+ **/
 struct ret_t *
 init_ret(void);
 
+/**
+ * Check size of the controller attributes
+ *
+ * \return int
+ **/
 int
 check_size(int written, int max, char *msg, struct ret_t *ret);
 
+/**
+ * Set pci addresss of NVMe controller.
+ *
+ * \return int
+ **/
 int
 set_pci_addr(
 	struct spdk_nvme_ctrlr *ctrlr, char *ctrlr_pci_addr, size_t size,
 	struct ret_t *ret);
 
+/**
+ * Get the NVMe controller
+ *
+ * \return int
+ **/
 int
 get_controller(char *addr, struct ctrlr_entry *ctrlr_entry, struct ret_t *ret);
 
+/**
+ * Collect controller and namespace information of the NVMe devices.
+ */
 void
 collect(struct ret_t *ret);
 
+/**
+ * Cleanup structs held in memory.
+ */
 void
 cleanup(void);
 
