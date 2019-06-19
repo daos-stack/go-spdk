@@ -1,17 +1,52 @@
 version: '2'
 
+vars:
+  DISCOVER_WRAPS:
+    -Wl,--wrap=spdk_nvme_probe
+    -Wl,--wrap=collect
+    -Wl,--wrap=cleanup
+    -Wl,--wrap=init_ret
+
+  FWUPDATE_WRAPS:
+    -Wl,--wrap=get_controller
+    -Wl,--wrap=collect
+    -Wl,--wrap=open
+    -Wl,--wrap=init_ret
+    -Wl,--wrap=read
+    -Wl,--wrap=fstat
+    -Wl,--wrap=close
+    -Wl,--wrap=spdk_nvme_ctrlr_update_firmware
+    -Wl,--wrap=spdk_dma_zmalloc
+    -Wl,--wrap=spdk_dma_free
+
+  TESTLIBS:
+    -lspdk
+    -lcmocka
+    -lnvme_control
+
+  GCCFLAGS:
+    -c
+    -g
+    -fpic
+    -Wall
+    -Werror
+    -Wshadow
+    -Wno-missing-braces
+
+  TESTFLAGS: "${CGO_LDFLAGS} ${CGO_CFLAGS} {{.GCCFLAGS}} {{.TESTLIBS}}"
+
 tasks:
   main-task:
     cmds:
       - task: build-nvme-libs
       - task: run-unit-tests
-      - task: build-spdk
+      - task: build-go-spdk
 
   build-nvme-libs:
     dir: spdk
     cmds:
       - rm -f *.o *.so
-      - gcc ${CGO_LDFLAGS} ${CGO_CFLAGS} -Werror -g -Wshadow -Wall -Wno-missing-braces -c -fpic -Iinclude src/*.c -lspdk
+      - gcc ${CGO_LDFLAGS} ${CGO_CFLAGS} {{.GCCFLAGS}} -Iinclude src/*.c -lspdk
       - gcc ${CGO_LDFLAGS} ${CGO_CFLAGS} -shared -o libnvme_control.so *.o
 
   run-unit-tests:
@@ -19,11 +54,26 @@ tasks:
     cmds:
       - go test -v
 
-  build-spdk:
+  build-go-spdk:
     dir: spdk
     deps: [lint]
     cmds:
       - sudo CGO_LDFLAGS=${CGO_LDFLAGS} CGO_CFLAGS=${CGO_CFLAGS} go build -v -i
+
+  build-discover-ctests:
+    dir: spdk/ctest
+    cmds:
+      - gcc {{.TESTFLAGS}} {{.DISCOVER_WRAPS}} -I../include -L../. nvme_discover_test.c ../src/nvme_control.c -o discover_ctest
+
+  build-fwupdate-ctests:
+    dir: spdk/ctest
+    cmds:
+      - gcc {{.TESTFLAGS}} {{.FWUPDATE_WRAPS}} -I../include -L../. nvme_fwupdate_test.c ../src/nvme_control.c -o fwupdate_ctest
+
+  build-format-ctests:
+    dir: spdk/ctest
+    cmds:
+      - gcc {{.TESTFLAGS}} {{.FORMAT_WRAPS}} -I../include -L../. nvme_format_test.c ../src/nvme_control.c -o format_ctest
 
   lint:
     dir: spdk
