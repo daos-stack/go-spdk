@@ -31,6 +31,7 @@
 struct ctrlr_entry {
 	struct spdk_nvme_ctrlr	*ctrlr;
 	const char		*tr_addr;
+	int 			socket_id;
 	struct ctrlr_entry	*next;
 };
 
@@ -90,9 +91,12 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 	  struct spdk_nvme_ctrlr *ctrlr,
 	  const struct spdk_nvme_ctrlr_opts *opts)
 {
-	int			nsid, num_ns;
+	int			nsid, num_ns, socket_id;
 	struct ctrlr_entry	*entry;
 	struct spdk_nvme_ns	*ns;
+	struct spdk_pci_device	*pci_dev;
+	struct spdk_pci_addr	pci_addr;
+
 
 	entry = malloc(sizeof(struct ctrlr_entry));
 	if (entry == NULL) {
@@ -100,6 +104,14 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 		exit(1);
 	}
 
+	pci_dev = spdk_nvme_ctrlr_get_pci_device(ctrlr);
+	if (!pci_dev) {
+		perror("ctrlr_get_pci_device");
+		exit(1);
+	}
+
+	// populate numa socket id
+	entry->socket_id = spdk_pci_device_get_socket_id(pci_dev);
 	entry->ctrlr = ctrlr;
 	entry->tr_addr = trid->traddr;
 	entry->next = g_controllers;
