@@ -91,12 +91,10 @@ attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 	  struct spdk_nvme_ctrlr *ctrlr,
 	  const struct spdk_nvme_ctrlr_opts *opts)
 {
-	int			nsid, num_ns, socket_id;
+	int			nsid, num_ns;
 	struct ctrlr_entry	*entry;
 	struct spdk_nvme_ns	*ns;
 	struct spdk_pci_device	*pci_dev;
-	struct spdk_pci_addr	pci_addr;
-
 
 	entry = malloc(sizeof(struct ctrlr_entry));
 	if (entry == NULL) {
