@@ -76,17 +76,15 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 	struct ret_t				*ret;
 
 	ret = init_ret();
-	ctrlr_entry = g_controllers;
 
-	rc = get_controller(ctrlr_pci_addr, ctrlr_entry, ret);
-	if (rc != 0)
+	ctrlr_entry = get_controller(ctrlr_pci_addr, ret);
+	if (ret->rc != 0)
 		return ret;
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		sprintf(ret->err, "Open file failed");
 		ret->rc = 1;
-
 		return ret;
 	}
 	rc = fstat(fd, &fw_stat);
@@ -94,7 +92,6 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 		close(fd);
 		sprintf(ret->err, "Fstat failed");
 		ret->rc = 1;
-
 		return ret;
 	}
 
@@ -102,7 +99,6 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 		close(fd);
 		sprintf(ret->err, "Firmware image size is not multiple of 4");
 		ret->rc = 1;
-
 		return ret;
 	}
 
@@ -113,7 +109,6 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 		close(fd);
 		sprintf(ret->err, "Allocation error");
 		ret->rc = 1;
-
 		return ret;
 	}
 
@@ -122,7 +117,6 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 		spdk_dma_free(fw_image);
 		sprintf(ret->err, "Read firmware image failed");
 		ret->rc = 1;
-
 		return ret;
 	}
 	close(fd);
@@ -148,19 +142,19 @@ nvme_fwupdate(char *ctrlr_pci_addr, char *path, unsigned int slot)
 struct ret_t *
 nvme_format(char *ctrlr_pci_addr)
 {
-	int					rc;
 	int					ns_id;
 	const struct spdk_nvme_ctrlr_data	*cdata;
 	struct spdk_nvme_ns			*ns;
-	struct spdk_nvme_format 		format = {};
+	struct spdk_nvme_format			format = {};
 	struct ctrlr_entry			*ctrlr_entry;
+	struct spdk_pci_device			*pci_dev;
+	struct spdk_pci_addr			pci_addr;
 	struct ret_t				*ret;
 
 	ret = init_ret();
-	ctrlr_entry = g_controllers;
 
-	rc = get_controller(ctrlr_pci_addr, ctrlr_entry, ret);
-	if (rc != 0)
+	ctrlr_entry = get_controller(ctrlr_pci_addr, ret);
+	if (ret->rc != 0)
 		return ret;
 
 	cdata = spdk_nvme_ctrlr_get_data(ctrlr_entry->ctrlr);
@@ -169,7 +163,6 @@ nvme_format(char *ctrlr_pci_addr)
 		snprintf(ret->err, sizeof(ret->err),
 			"Controller does not support Format NVM command\n");
 		ret->rc = -NVMEC_ERR_NOT_SUPPORTED;
-
 		return ret;
 	}
 
@@ -185,7 +178,6 @@ nvme_format(char *ctrlr_pci_addr)
 		snprintf(ret->err, sizeof(ret->err),
 			"Namespace ID %d not found", ns_id);
 		ret->rc = -NVMEC_ERR_NS_NOT_FOUND;
-
 		return ret;
 	}
 
@@ -193,15 +185,26 @@ nvme_format(char *ctrlr_pci_addr)
 	format.ms	= 0; // metadata transferred as part of a separate buffer
 	format.pi	= 0; // protection information is not enabled
 	format.pil	= 0; // protection information location N/A
-	format.ses	= 0; // no secure erase operation requested
+	format.ses	= 1; // secure erase operation set to user data erase
 
 	ret->rc = spdk_nvme_ctrlr_format(ctrlr_entry->ctrlr, ns_id, &format);
 
 	if (ret->rc != 0) {
 		snprintf(ret->err, sizeof(ret->err), "format failed");
-
 		return ret;
 	}
+
+	pci_dev = spdk_nvme_ctrlr_get_pci_device(ctrlr_entry->ctrlr);
+	if (!pci_dev) {
+		snprintf(ret->err, sizeof(ret->err), "get_pci_device");
+		ret->rc = -NVMEC_ERR_GET_PCI_DEV;
+		return ret;
+	}
+
+	// print address of device updated for verification purposes
+	pci_addr = spdk_pci_device_get_addr(pci_dev);
+	printf("Formatted NVMe Controller:       %04x:%02x:%02x.%02x\n",
+	       pci_addr.domain, pci_addr.bus, pci_addr.dev, pci_addr.func);
 
 	collect(ret);
 
