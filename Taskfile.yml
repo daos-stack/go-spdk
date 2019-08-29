@@ -65,16 +65,6 @@ tasks:
     cmds:
       - gcc {{.TESTFLAGS}} {{.DISCOVER_WRAPS}} -I../include -L../. nvme_discover_test.c ../src/nvme_control.c -o discover_ctest
 
-  build-fwupdate-ctests:
-    dir: spdk/ctest
-    cmds:
-      - gcc {{.TESTFLAGS}} {{.FWUPDATE_WRAPS}} -I../include -L../. nvme_fwupdate_test.c ../src/nvme_control.c -o fwupdate_ctest
-
-  build-format-ctests:
-    dir: spdk/ctest
-    cmds:
-      - gcc {{.TESTFLAGS}} {{.FORMAT_WRAPS}} -I../include -L../. nvme_format_test.c ../src/nvme_control.c -o format_ctest
-
   lint:
     dir: spdk
     cmds:
