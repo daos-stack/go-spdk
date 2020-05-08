@@ -1,3 +1,7 @@
+# NOTICE -- This repo is deprecated!
+
+Please use https://github.com/daos-stack/daos/tree/master/src/control/lib/spdk instead.
+
 [![GoDoc](https://godoc.org/github.com/daos-stack/go-spdk/spdk?status.svg)](https://godoc.org/github.com/daos-stack/go-spdk/spdk)
 
 # Go language bindings for the SPDK API
